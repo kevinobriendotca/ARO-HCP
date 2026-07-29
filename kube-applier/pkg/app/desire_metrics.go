@@ -66,9 +66,6 @@ func (c *desireCollector) Run(ctx context.Context) {
 func (c *desireCollector) collect() {
 	counts := initCounts()
 
-	// Track current desires for cleanup
-	currentDesires := make(map[string]bool)
-
 	for _, obj := range c.applyStore.List() {
 		if d, ok := obj.(*kubeapplierapi.ApplyDesire); ok {
 			countTrueConditions(counts["apply"], d.Status.Conditions)
@@ -91,9 +88,6 @@ func (c *desireCollector) collect() {
 			}
 		}
 	}
-
-	// Clean up stale entries from the operation metrics map
-	c.operationMetrics.cleanupStaleEntries(currentDesires)
 
 	for desireType, condMap := range counts {
 		for condType, n := range condMap {
